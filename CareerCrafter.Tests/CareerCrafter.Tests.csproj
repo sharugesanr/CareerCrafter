@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CareerCrafter.Core\CareerCrafter.Core.csproj" />
+    <ProjectReference Include="..\CareerCrafter.Services\CareerCrafter.Services.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="CareerCrafter.API/CareerCrafter.API.csproj" />
+  <Project Path="CareerCrafter.Core/CareerCrafter.Core.csproj" />
+  <Project Path="CareerCrafter.Data/CareerCrafter.Data.csproj" />
+  <Project Path="CareerCrafter.Services/CareerCrafter.Services.csproj" />
+  <Project Path="CareerCrafter.Tests/CareerCrafter.Tests.csproj" />
+</Solution>
