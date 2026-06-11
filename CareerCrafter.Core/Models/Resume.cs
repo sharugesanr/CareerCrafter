@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CareerCrafter.Data;
-
-public partial class Resume
+namespace CareerCrafter.Core.Models
 {
-    public int ResumeId { get; set; }
 
-    public int JobSeekerProfileId { get; set; }
+    public class Resume
+    {
+        public int ResumeId { get; set; }
 
-    public string FileName { get; set; } = null!;
+        public int JobSeekerProfileId { get; set; }
 
-    public string FilePath { get; set; } = null!;
+        public string FileName { get; set; } = null!;
 
-    public DateTime? UploadedAt { get; set; }
+        public string FilePath { get; set; } = null!;
 
-    public bool? IsActive { get; set; }
+        public DateTime? UploadedAt { get; set; }
 
-    public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
+        public bool? IsActive { get; set; }
 
-    public virtual JobSeekerProfile JobSeekerProfile { get; set; } = null!;
+        public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
+
+        public virtual JobSeekerProfile JobSeekerProfile { get; set; } = null!;
+    }
 }

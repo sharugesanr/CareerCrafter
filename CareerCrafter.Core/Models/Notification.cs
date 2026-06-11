@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CareerCrafter.Data;
-
-public partial class Notification
+namespace CareerCrafter.Core.Models
 {
-    public int NotificationId { get; set; }
 
-    public int UserId { get; set; }
+    public class Notification
+    {
+        public int NotificationId { get; set; }
 
-    public string Message { get; set; } = null!;
+        public int UserId { get; set; }
 
-    public bool? IsRead { get; set; }
+        public string Message { get; set; } = null!;
 
-    public DateTime? CreatedAt { get; set; }
+        public bool? IsRead { get; set; }
 
-    public virtual User User { get; set; } = null!;
+        public DateTime? CreatedAt { get; set; }
+
+        public virtual User User { get; set; } = null!;
+    }
 }

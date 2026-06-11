@@ -1,25 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CareerCrafter.Data;
-
-public partial class User
+namespace CareerCrafter.Core.Models
 {
-    public int UserId { get; set; }
 
-    public string FullName { get; set; } = null!;
+    public class User
+    {
+        public int UserId { get; set; }
 
-    public string Email { get; set; } = null!;
+        public string FullName { get; set; } = null!;
 
-    public string PasswordHash { get; set; } = null!;
+        public string Email { get; set; } = null!;
 
-    public string Role { get; set; } = null!;
+        public string PasswordHash { get; set; } = null!;
 
-    public DateTime? CreatedAt { get; set; }
+        public string Role { get; set; } = null!;
 
-    public virtual EmployerProfile? EmployerProfile { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
-    public virtual JobSeekerProfile? JobSeekerProfile { get; set; }
+        public virtual EmployerProfile? EmployerProfile { get; set; }
 
-    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        public virtual JobSeekerProfile? JobSeekerProfile { get; set; }
+
+        public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    }
 }

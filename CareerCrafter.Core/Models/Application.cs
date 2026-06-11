@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CareerCrafter.Data;
-
-public partial class Application
+namespace CareerCrafter.Core.Models
 {
-    public int ApplicationId { get; set; }
 
-    public int JobId { get; set; }
+    public class Application
+    {
+        public int ApplicationId { get; set; }
 
-    public int JobSeekerProfileId { get; set; }
+        public int JobId { get; set; }
 
-    public int ResumeId { get; set; }
+        public int JobSeekerProfileId { get; set; }
 
-    public string? Status { get; set; }
+        public int ResumeId { get; set; }
 
-    public DateTime? AppliedAt { get; set; }
+        public string? Status { get; set; }
 
-    public string? CoverNote { get; set; }
+        public DateTime? AppliedAt { get; set; }
 
-    public virtual JobListing Job { get; set; } = null!;
+        public string? CoverNote { get; set; }
 
-    public virtual JobSeekerProfile JobSeekerProfile { get; set; } = null!;
+        public virtual JobListing Job { get; set; } = null!;
 
-    public virtual Resume Resume { get; set; } = null!;
+        public virtual JobSeekerProfile JobSeekerProfile { get; set; } = null!;
+
+        public virtual Resume Resume { get; set; } = null!;
+    }
 }
