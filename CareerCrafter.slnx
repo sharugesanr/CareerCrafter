@@ -2,6 +2,7 @@
   <Project Path="CareerCrafter.API/CareerCrafter.API.csproj" />
   <Project Path="CareerCrafter.Core/CareerCrafter.Core.csproj" />
   <Project Path="CareerCrafter.Data/CareerCrafter.Data.csproj" />
+  <Project Path="CareerCrafter.Repositories/CareerCrafter.Repositories.csproj" Id="b7004ad6-ff43-4869-a04f-9913bb5aa187" />
   <Project Path="CareerCrafter.Services/CareerCrafter.Services.csproj" />
   <Project Path="CareerCrafter.Tests/CareerCrafter.Tests.csproj" />
 </Solution>
