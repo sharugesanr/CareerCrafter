@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Implementations;
@@ -85,7 +86,7 @@ namespace CareerCrafter.Tests.Services
 
             var dto = new CreateJobListingDto { Title = "Backend Developer", Description = "Desc" };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.CreateJobAsync(1, dto));
+            var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _service.CreateJobAsync(1, dto));
             Assert.That(ex!.Message, Is.EqualTo("Employer profile not found."));
         }
 
@@ -120,7 +121,7 @@ namespace CareerCrafter.Tests.Services
 
             var dto = new UpdateJobListingDto { Title = "Test", Description = "Test" };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.UpdateJobAsync(1, 99, dto));
+            var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _service.UpdateJobAsync(1, 99, dto));
             Assert.That(ex!.Message, Is.EqualTo("Job listing not found."));
         }
 
@@ -135,7 +136,7 @@ namespace CareerCrafter.Tests.Services
 
             var dto = new UpdateJobListingDto { Title = "Test", Description = "Test" };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.UpdateJobAsync(1, 5, dto));
+            var ex = Assert.ThrowsAsync<UnauthorizedException>(async () => await _service.UpdateJobAsync(1, 5, dto));
             Assert.That(ex!.Message, Is.EqualTo("You are not authorized to update this job."));
         }
 
@@ -163,7 +164,7 @@ namespace CareerCrafter.Tests.Services
             _employerRepoMock.Setup(r => r.GetByUserIdAsync(1)).ReturnsAsync(employer);
             _jobRepoMock.Setup(r => r.GetByIdAsync(5)).ReturnsAsync(job);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.SoftDeleteJobAsync(1, 5));
+            var ex = Assert.ThrowsAsync<UnauthorizedException>(async () => await _service.SoftDeleteJobAsync(1, 5));
             Assert.That(ex!.Message, Is.EqualTo("You are not authorized to delete this job."));
         }
 

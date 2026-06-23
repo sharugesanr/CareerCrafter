@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Interfaces;
@@ -49,10 +50,10 @@ namespace CareerCrafter.Services.Implementations
         {
             var notification = await _repository.GetByIdAsync(notificationId);
             if (notification == null)
-                throw new Exception("Notification not found.");
+                throw new NotFoundException("Notification not found.");
 
             if (notification.UserId != userId)
-                throw new Exception("You are not authorized to access this notification.");
+                throw new UnauthorizedException("You are not authorized to access this notification.");
 
             notification.IsRead = true;
 

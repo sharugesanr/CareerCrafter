@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Interfaces;
@@ -44,7 +45,10 @@ namespace CareerCrafter.Services.Implementations
         {
             var employer = await _employerRepo.GetByUserIdAsync(userId);
             if (employer == null)
-                throw new Exception("Employer profile not found.");
+                throw new NotFoundException("Employer profile not found.");
+
+            if (dto.Deadline.HasValue && dto.Deadline.Value.Date <= DateTime.Now.Date)
+                throw new ValidationException("Deadline must be a future date.");
 
             var job = new JobListing
             {
@@ -71,14 +75,17 @@ namespace CareerCrafter.Services.Implementations
         {
             var employer = await _employerRepo.GetByUserIdAsync(userId);
             if (employer == null)
-                throw new Exception("Employer profile not found.");
+                throw new NotFoundException("Employer profile not found.");
 
             var job = await _jobRepo.GetByIdAsync(jobId);
             if (job == null)
-                throw new Exception("Job listing not found.");
+                throw new NotFoundException("Job listing not found.");
 
             if (job.EmployerProfileId != employer.EmployerProfileId)
-                throw new Exception("You are not authorized to update this job.");
+                throw new UnauthorizedException("You are not authorized to update this job.");
+
+            if (dto.Deadline.HasValue && dto.Deadline.Value.Date <= DateTime.Now.Date)
+                throw new ValidationException("Deadline must be a future date.");
 
             job.Title = dto.Title;
             job.Description = dto.Description;
@@ -98,14 +105,14 @@ namespace CareerCrafter.Services.Implementations
         {
             var employer = await _employerRepo.GetByUserIdAsync(userId);
             if (employer == null)
-                throw new Exception("Employer profile not found.");
+                throw new NotFoundException("Employer profile not found.");
 
             var job = await _jobRepo.GetByIdAsync(jobId);
             if (job == null)
-                throw new Exception("Job listing not found.");
+                throw new NotFoundException("Job listing not found.");
 
             if (job.EmployerProfileId != employer.EmployerProfileId)
-                throw new Exception("You are not authorized to delete this job.");
+                throw new UnauthorizedException("You are not authorized to delete this job.");
 
             job.IsActive = false;
 
@@ -166,7 +173,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var employer = await _employerRepo.GetByUserIdAsync(userId);
             if (employer == null)
-                throw new Exception("Employer profile not found.");
+                throw new NotFoundException("Employer profile not found.");
 
             var jobs = await _jobRepo.GetByEmployerProfileIdAsync(employer.EmployerProfileId);
             return jobs.Select(j => MapToDto(j)).ToList();
@@ -176,14 +183,14 @@ namespace CareerCrafter.Services.Implementations
         {
             var employer = await _employerRepo.GetByUserIdAsync(userId);
             if (employer == null)
-                throw new Exception("Employer profile not found.");
+                throw new NotFoundException("Employer profile not found.");
 
             var job = await _jobRepo.GetByIdAsync(jobId);
             if (job == null)
-                throw new Exception("Job listing not found.");
+                throw new NotFoundException("Job listing not found.");
 
             if (job.EmployerProfileId != employer.EmployerProfileId)
-                throw new Exception("You are not authorized to reactivate this job.");
+                throw new UnauthorizedException("You are not authorized to reactivate this job.");
 
             job.IsActive = true;
 

@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Implementations;
@@ -126,14 +127,14 @@ namespace CareerCrafter.Tests.Services
 
             var dto = new CreateApplicationDto { JobId = 1, ResumeId = 1 };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.ApplyAsync(1, dto));
+            var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _service.ApplyAsync(1, dto));
             Assert.That(ex!.Message, Is.EqualTo("Job listing not found or is no longer active."));
         }
 
         [Test]
         public void ApplyAsync_ResumeNotFound_ThrowsException()
         {
-            var profile = CreateJobSeekerProfile(resumeId: 5); // resume id 5 exists, not 99
+            var profile = CreateJobSeekerProfile(resumeId: 5); 
             var job = CreateJob();
 
             _jobSeekerRepoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync(profile);
@@ -141,7 +142,7 @@ namespace CareerCrafter.Tests.Services
 
             var dto = new CreateApplicationDto { JobId = 1, ResumeId = 99 };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.ApplyAsync(1, dto));
+            var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _service.ApplyAsync(1, dto));
             Assert.That(ex!.Message, Is.EqualTo("Resume not found. Please upload a resume before applying."));
         }
 
@@ -158,7 +159,7 @@ namespace CareerCrafter.Tests.Services
 
             var dto = new CreateApplicationDto { JobId = 1, ResumeId = 1 };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.ApplyAsync(1, dto));
+            var ex = Assert.ThrowsAsync<DuplicateException>(async () => await _service.ApplyAsync(1, dto));
             Assert.That(ex!.Message, Is.EqualTo("You have already applied for this job."));
         }
 
@@ -200,7 +201,7 @@ namespace CareerCrafter.Tests.Services
             _jobSeekerRepoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync(profile);
             _applicationRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(application);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.WithdrawApplicationAsync(1, 1));
+            var ex = Assert.ThrowsAsync<ValidationException>(async () => await _service.WithdrawApplicationAsync(1, 1));
             Assert.That(ex!.Message, Is.EqualTo("Cannot withdraw application after it has been reviewed."));
         }
 
@@ -213,7 +214,7 @@ namespace CareerCrafter.Tests.Services
             _jobSeekerRepoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync(profile);
             _applicationRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(application);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.WithdrawApplicationAsync(1, 1));
+            var ex = Assert.ThrowsAsync<UnauthorizedException>(async () => await _service.WithdrawApplicationAsync(1, 1));
             Assert.That(ex!.Message, Is.EqualTo("You are not authorized to withdraw this application."));
         }
 
@@ -242,7 +243,7 @@ namespace CareerCrafter.Tests.Services
             _employerRepoMock.Setup(r => r.GetByUserIdAsync(1)).ReturnsAsync(employer);
             _jobListingRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(job);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.GetApplicantsByJobAsync(1, 1));
+            var ex = Assert.ThrowsAsync<UnauthorizedException>(async () => await _service.GetApplicantsByJobAsync(1, 1));
             Assert.That(ex!.Message, Is.EqualTo("You are not authorized to view applications for this job."));
         }
 
@@ -274,7 +275,7 @@ namespace CareerCrafter.Tests.Services
 
             var dto = new UpdateApplicationStatusDto { Status = "Shortlisted" };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.UpdateApplicationStatusAsync(1, 1, dto));
+            var ex = Assert.ThrowsAsync<ValidationException>(async () => await _service.UpdateApplicationStatusAsync(1, 1, dto));
             Assert.That(ex!.Message, Is.EqualTo("Cannot update status of a withdrawn application."));
         }
 
@@ -289,7 +290,7 @@ namespace CareerCrafter.Tests.Services
 
             var dto = new UpdateApplicationStatusDto { Status = "Shortlisted" };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.UpdateApplicationStatusAsync(1, 1, dto));
+            var ex = Assert.ThrowsAsync<ValidationException>(async () => await _service.UpdateApplicationStatusAsync(1, 1, dto));
             Assert.That(ex!.Message, Is.EqualTo("Cannot update status of a rejected application."));
         }
     }

@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Interfaces;
@@ -46,17 +47,23 @@ namespace CareerCrafter.Services.Implementations
         {
             var jobSeekerProfile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
             if (jobSeekerProfile == null)
-                throw new Exception("Job seeker profile not found.");
+                throw new NotFoundException("Job seeker profile not found.");
+
+            var existingResumes = await _resumeRepo.GetActiveByJobSeekerProfileIdAsync(jobSeekerProfile.JobSeekerProfileId);
+            if (existingResumes.Count >= 4)
+                throw new ValidationException("Resume limit reached. You can store a maximum of 4 resumes. Please delete an existing resume before uploading a new one.");
 
             if (file == null || file.Length == 0)
-                throw new Exception("Please select a file to upload.");
+                throw new ValidationException("Please select a file to upload.");
 
             if (file.Length > MaxFileSizeBytes)
-                throw new Exception("File size exceeds 5MB limit.");
+                throw new ValidationException("File size exceeds 5MB limit.");
+
 
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!AllowedExtensions.Contains(extension))
-                throw new Exception("Only PDF, DOC, and DOCX files are allowed.");
+                throw new ValidationException("Only PDF, DOC, and DOCX files are allowed.");
+
 
             var uniqueFileName = $"{userId}_{DateTime.Now:yyyyMMddHHmmss}_{Path.GetFileName(file.FileName)}";
             var filePath = Path.Combine(_uploadFolder, uniqueFileName);
@@ -85,7 +92,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var jobSeekerProfile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
             if (jobSeekerProfile == null)
-                throw new Exception("Job seeker profile not found.");
+                throw new NotFoundException("Job seeker profile not found.");
 
             var resumes = await _resumeRepo.GetActiveByJobSeekerProfileIdAsync(jobSeekerProfile.JobSeekerProfileId);
             return resumes.Select(r => MapToDto(r)).ToList();
@@ -95,14 +102,14 @@ namespace CareerCrafter.Services.Implementations
         {
             var jobSeekerProfile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
             if (jobSeekerProfile == null)
-                throw new Exception("Job seeker profile not found.");
+                throw new NotFoundException("Job seeker profile not found.");
 
             var resume = await _resumeRepo.GetByIdAsync(resumeId);
             if (resume == null || resume.IsActive == false)
-                throw new Exception("Resume not found.");
+                throw new NotFoundException("Resume not found.");
 
             if (resume.JobSeekerProfileId != jobSeekerProfile.JobSeekerProfileId)
-                throw new Exception("You are not authorized to view this resume.");
+                throw new UnauthorizedException("You are not authorized to view this resume.");
 
             return MapToDto(resume);
         }
@@ -111,14 +118,14 @@ namespace CareerCrafter.Services.Implementations
         {
             var jobSeekerProfile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
             if (jobSeekerProfile == null)
-                throw new Exception("Job seeker profile not found.");
+                throw new NotFoundException("Job seeker profile not found.");
 
             var resume = await _resumeRepo.GetByIdAsync(resumeId);
             if (resume == null || resume.IsActive == false)
-                throw new Exception("Resume not found.");
+                throw new NotFoundException("Resume not found.");
 
             if (resume.JobSeekerProfileId != jobSeekerProfile.JobSeekerProfileId)
-                throw new Exception("You are not authorized to delete this resume.");
+                throw new UnauthorizedException("You are not authorized to delete this resume.");
 
             resume.IsActive = false;
 

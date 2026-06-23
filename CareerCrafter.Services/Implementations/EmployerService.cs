@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Interfaces;
@@ -24,7 +25,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             return new EmployerProfileDto
             {
@@ -43,7 +44,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             profile.CompanyName = dto.CompanyName;
             profile.Industry = dto.Industry;

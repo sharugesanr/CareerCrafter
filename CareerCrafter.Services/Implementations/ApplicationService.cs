@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Interfaces;
@@ -67,20 +68,20 @@ namespace CareerCrafter.Services.Implementations
         {
             var jobSeekerProfile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
             if (jobSeekerProfile == null)
-                throw new Exception("Job seeker profile not found.");
+                throw new NotFoundException("Job seeker profile not found.");
 
             var job = await _jobListingRepo.GetByIdAsync(dto.JobId);
             if (job == null || job.IsActive == false)
-                throw new Exception("Job listing not found or is no longer active.");
+                throw new NotFoundException("Job listing not found or is no longer active.");
 
             var resume = jobSeekerProfile.Resumes
                 .FirstOrDefault(r => r.ResumeId == dto.ResumeId);
             if (resume == null)
-                throw new Exception("Resume not found. Please upload a resume before applying.");
+                throw new NotFoundException("Resume not found. Please upload a resume before applying.");
 
             var existing = await _applicationRepo.GetByJobAndJobSeekerAsync(dto.JobId, jobSeekerProfile.JobSeekerProfileId);
             if (existing != null)
-                throw new Exception("You have already applied for this job.");
+                throw new DuplicateException("You have already applied for this job.");
 
             var application = new Application
             {
@@ -103,7 +104,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var jobSeekerProfile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
             if (jobSeekerProfile == null)
-                throw new Exception("Job seeker profile not found.");
+                throw new NotFoundException("Job seeker profile not found.");
 
             var applications = await _applicationRepo.GetByJobSeekerProfileIdAsync(jobSeekerProfile.JobSeekerProfileId);
             return applications.Select(a => MapToApplicationDto(a)).ToList();
@@ -113,14 +114,14 @@ namespace CareerCrafter.Services.Implementations
         {
             var jobSeekerProfile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
             if (jobSeekerProfile == null)
-                throw new Exception("Job seeker profile not found.");
+                throw new NotFoundException("Job seeker profile not found.");
 
             var application = await _applicationRepo.GetByIdAsync(applicationId);
             if (application == null)
-                throw new Exception("Application not found.");
+                throw new NotFoundException("Application not found.");
 
             if (application.JobSeekerProfileId != jobSeekerProfile.JobSeekerProfileId)
-                throw new Exception("You are not authorized to view this application.");
+                throw new UnauthorizedException("You are not authorized to view applications for this job.");
 
             return MapToApplicationDto(application);
         }
@@ -129,17 +130,20 @@ namespace CareerCrafter.Services.Implementations
         {
             var jobSeekerProfile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
             if (jobSeekerProfile == null)
-                throw new Exception("Job seeker profile not found.");
+                throw new NotFoundException("Job seeker profile not found.");
 
             var application = await _applicationRepo.GetByIdAsync(applicationId);
             if (application == null)
-                throw new Exception("Application not found.");
+                throw new NotFoundException("Application not found.");
 
             if (application.JobSeekerProfileId != jobSeekerProfile.JobSeekerProfileId)
-                throw new Exception("You are not authorized to withdraw this application.");
+                throw new UnauthorizedException("You are not authorized to withdraw this application.");
+
+            if (application.Status == "Withdrawn")
+                throw new ValidationException("You have already Withdrawed this Application.");
 
             if (application.Status != "Applied")
-                throw new Exception("Cannot withdraw application after it has been reviewed.");
+                throw new ValidationException("Cannot withdraw application after it has been reviewed.");
 
             application.Status = "Withdrawn";
 
@@ -151,14 +155,16 @@ namespace CareerCrafter.Services.Implementations
         {
             var employer = await _employerRepo.GetByUserIdAsync(userId);
             if (employer == null)
-                throw new Exception("Employer profile not found.");
+                throw new NotFoundException("Employer profile not found.");
 
             var job = await _jobListingRepo.GetByIdAsync(jobId);
             if (job == null)
-                throw new Exception("Job listing not found.");
+                throw new NotFoundException("Job listing not found.");
 
             if (job.EmployerProfileId != employer.EmployerProfileId)
-                throw new Exception("You are not authorized to view applications for this job.");
+                throw new UnauthorizedException("You are not authorized to view applications for this job.");
+
+            
 
             var applications = await _applicationRepo.GetByJobIdAsync(jobId);
             return applications.Select(a => MapToApplicantDto(a)).ToList();
@@ -168,24 +174,24 @@ namespace CareerCrafter.Services.Implementations
         {
             var employer = await _employerRepo.GetByUserIdAsync(userId);
             if (employer == null)
-                throw new Exception("Employer profile not found.");
+                throw new NotFoundException("Employer profile not found.");
 
             var application = await _applicationRepo.GetByIdAsync(applicationId);
             if (application == null)
-                throw new Exception("Application not found.");
+                throw new NotFoundException("Application not found.");
 
             if (application.Job.EmployerProfileId != employer.EmployerProfileId)
-                throw new Exception("You are not authorized to update this application.");
+                throw new UnauthorizedException("You are not authorized to update this application.");
 
             if (application.Status == "Withdrawn")
-                throw new Exception("Cannot update status of a withdrawn application.");
+                throw new ValidationException("Cannot update status of a withdrawn application.");
 
             if (application.Status == "Rejected")
-                throw new Exception("Cannot update status of a rejected application.");
+                throw new ValidationException("Cannot update status of a rejected application.");
 
             var validStatuses = new[] { "Applied", "Reviewed", "Shortlisted", "Rejected" };
             if (!validStatuses.Contains(dto.Status))
-                throw new Exception("Invalid status. Valid values: Applied, Reviewed, Shortlisted, Rejected.");
+                throw new ValidationException("Invalid status. Valid values: Applied, Reviewed, Shortlisted, Rejected.");
 
             application.Status = dto.Status;
 

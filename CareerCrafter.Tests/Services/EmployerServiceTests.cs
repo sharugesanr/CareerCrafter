@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Implementations;
@@ -63,7 +64,7 @@ namespace CareerCrafter.Tests.Services
         {
             _repoMock.Setup(r => r.GetByUserIdAsync(1)).ReturnsAsync((EmployerProfile?)null);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.GetProfileAsync(1));
+            var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _service.GetProfileAsync(1));
             Assert.That(ex!.Message, Is.EqualTo("Profile not found."));
         }
 
@@ -104,7 +105,7 @@ namespace CareerCrafter.Tests.Services
                 Description = "Updated description"
             };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.UpdateProfileAsync(1, dto));
+            var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _service.UpdateProfileAsync(1, dto));
             Assert.That(ex!.Message, Is.EqualTo("Profile not found."));
         }
 

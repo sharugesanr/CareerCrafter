@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Implementations;
@@ -62,7 +63,7 @@ namespace CareerCrafter.Tests.Services
         {
             _repoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync((JobSeekerProfile?)null);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.GetProfileAsync(1));
+            var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _service.GetProfileAsync(1));
             Assert.That(ex!.Message, Is.EqualTo("Profile not found."));
         }
 
@@ -115,7 +116,7 @@ namespace CareerCrafter.Tests.Services
 
             var dto = new AddEducationDto { Degree = "B.Tech", Institution = "PSNACET", YearOfPassing = 2026 };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.AddEducationAsync(1, dto));
+            var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _service.AddEducationAsync(1, dto));
             Assert.That(ex!.Message, Is.EqualTo("Profile not found."));
         }
 
@@ -142,7 +143,7 @@ namespace CareerCrafter.Tests.Services
             _repoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync(profile);
             _repoMock.Setup(r => r.GetEducationByIdAsync(10)).ReturnsAsync(education);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.DeleteEducationAsync(1, 10));
+            var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _service.DeleteEducationAsync(1, 10));
             Assert.That(ex!.Message, Is.EqualTo("Education record not found."));
         }
 

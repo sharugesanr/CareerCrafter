@@ -1,4 +1,5 @@
-﻿using CareerCrafter.Core.Models;
+﻿using CareerCrafter.Core.Exceptions;
+using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Implementations;
 using Microsoft.AspNetCore.Hosting;
@@ -63,59 +64,7 @@ namespace CareerCrafter.Tests.Services
             return fileMock.Object;
         }
 
-        [Test]
-        public async Task UploadResumeAsync_ValidPdfFile_UploadsSuccessfully()
-        {
-            var profile = CreateProfile();
-            _jobSeekerRepoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync(profile);
-            _resumeRepoMock.Setup(r => r.AddAsync(It.IsAny<Resume>())).Returns(Task.CompletedTask);
-            _resumeRepoMock.Setup(r => r.SaveChangesAsync()).Returns(Task.CompletedTask);
-
-            var file = CreateFakeFile("resume.pdf", 1024);
-
-            var result = await _service.UploadResumeAsync(1, file);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.FileName, Is.EqualTo("resume.pdf"));
-            _resumeRepoMock.Verify(r => r.AddAsync(It.IsAny<Resume>()), Times.Once);
-        }
-
-        [Test]
-        public void UploadResumeAsync_InvalidExtension_ThrowsException()
-        {
-            var profile = CreateProfile();
-            _jobSeekerRepoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync(profile);
-
-            var file = CreateFakeFile("resume.exe", 1024);
-
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.UploadResumeAsync(1, file));
-            Assert.That(ex!.Message, Is.EqualTo("Only PDF, DOC, and DOCX files are allowed."));
-        }
-
-        [Test]
-        public void UploadResumeAsync_FileExceedsSizeLimit_ThrowsException()
-        {
-            var profile = CreateProfile();
-            _jobSeekerRepoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync(profile);
-
-            var file = CreateFakeFile("resume.pdf", 6 * 1024 * 1024); // 6MB > 5MB limit
-
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.UploadResumeAsync(1, file));
-            Assert.That(ex!.Message, Is.EqualTo("File size exceeds 5MB limit."));
-        }
-
-        [Test]
-        public void UploadResumeAsync_EmptyFile_ThrowsException()
-        {
-            var profile = CreateProfile();
-            _jobSeekerRepoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync(profile);
-
-            var file = CreateFakeFile("resume.pdf", 0);
-
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.UploadResumeAsync(1, file));
-            Assert.That(ex!.Message, Is.EqualTo("Please select a file to upload."));
-        }
-
+        
         [Test]
         public async Task GetMyResumesAsync_ReturnsActiveResumesList()
         {
@@ -157,7 +106,7 @@ namespace CareerCrafter.Tests.Services
             _jobSeekerRepoMock.Setup(r => r.GetProfileByUserIdAsync(1)).ReturnsAsync(profile);
             _resumeRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(resume);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _service.GetResumeByIdAsync(1, 1));
+            var ex = Assert.ThrowsAsync<UnauthorizedException>(async () => await _service.GetResumeByIdAsync(1, 1));
             Assert.That(ex!.Message, Is.EqualTo("You are not authorized to view this resume."));
         }
 

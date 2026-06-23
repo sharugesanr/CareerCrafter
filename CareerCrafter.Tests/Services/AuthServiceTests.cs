@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Implementations;
@@ -121,7 +122,7 @@ namespace CareerCrafter.Tests.Services
             _authRepoMock.Setup(r => r.GetUserByEmailAsync(dto.Email))
                 .ReturnsAsync(new User { UserId = 1, Email = dto.Email });
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _authService.RegisterAsync(dto));
+            var ex = Assert.ThrowsAsync<DuplicateException>(async () => await _authService.RegisterAsync(dto));
             Assert.That(ex!.Message, Is.EqualTo("Email already registered."));
         }
 
@@ -139,7 +140,7 @@ namespace CareerCrafter.Tests.Services
             _authRepoMock.Setup(r => r.GetUserByEmailAsync(dto.Email))
                 .ReturnsAsync((User?)null);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _authService.RegisterAsync(dto));
+            var ex = Assert.ThrowsAsync<ValidationException>(async () => await _authService.RegisterAsync(dto));
             Assert.That(ex!.Message, Is.EqualTo("Invalid role. Must be JobSeeker or Employer."));
         }
 
@@ -196,7 +197,7 @@ namespace CareerCrafter.Tests.Services
             _authRepoMock.Setup(r => r.GetUserByEmailAsync(dto.Email))
                 .ReturnsAsync(existingUser);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _authService.LoginAsync(dto));
+            var ex = Assert.ThrowsAsync<ValidationException>(async () => await _authService.LoginAsync(dto));
             Assert.That(ex!.Message, Is.EqualTo("Invalid email or password."));
         }
 
@@ -212,7 +213,7 @@ namespace CareerCrafter.Tests.Services
             _authRepoMock.Setup(r => r.GetUserByEmailAsync(dto.Email))
                 .ReturnsAsync((User?)null);
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _authService.LoginAsync(dto));
+            var ex = Assert.ThrowsAsync<ValidationException>(async () => await _authService.LoginAsync(dto));
             Assert.That(ex!.Message, Is.EqualTo("Invalid email or password."));
         }
     }

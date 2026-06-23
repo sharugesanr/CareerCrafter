@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Repositories.Interfaces;
 using CareerCrafter.Services.Interfaces;
@@ -23,7 +24,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetProfileByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             return new JobSeekerProfileDto
             {
@@ -41,7 +42,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetProfileByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             profile.PhoneNumber = dto.PhoneNumber;
             profile.Location = dto.Location;
@@ -67,7 +68,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetProfileByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             var educations = await _repository.GetEducationsByProfileIdAsync(profile.JobSeekerProfileId);
 
@@ -84,7 +85,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetProfileByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             var education = new Education
             {
@@ -110,11 +111,11 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetProfileByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             var education = await _repository.GetEducationByIdAsync(educationId);
             if (education == null || education.JobSeekerProfileId != profile.JobSeekerProfileId)
-                throw new Exception("Education record not found.");
+                throw new NotFoundException("Education record not found.");
 
             await _repository.DeleteEducationAsync(education);
             await _repository.SaveChangesAsync();
@@ -124,7 +125,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetProfileByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             var experiences = await _repository.GetExperiencesByProfileIdAsync(profile.JobSeekerProfileId);
 
@@ -142,7 +143,7 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetProfileByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             var experience = new Experience
             {
@@ -170,11 +171,11 @@ namespace CareerCrafter.Services.Implementations
         {
             var profile = await _repository.GetProfileByUserIdAsync(userId);
             if (profile == null)
-                throw new Exception("Profile not found.");
+                throw new NotFoundException("Profile not found.");
 
             var experience = await _repository.GetExperienceByIdAsync(experienceId);
             if (experience == null || experience.JobSeekerProfileId != profile.JobSeekerProfileId)
-                throw new Exception("Experience record not found.");
+                throw new NotFoundException("Experience record not found.");
 
             await _repository.DeleteExperienceAsync(experience);
             await _repository.SaveChangesAsync();

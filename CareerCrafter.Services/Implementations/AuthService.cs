@@ -1,4 +1,5 @@
 ﻿using CareerCrafter.Core.DTOs;
+using CareerCrafter.Core.Exceptions;
 using CareerCrafter.Core.Models;
 using CareerCrafter.Data;
 using CareerCrafter.Repositories.Interfaces;
@@ -39,10 +40,10 @@ namespace CareerCrafter.Services.Implementations
         {
             var existingUser = await _authRepository.GetUserByEmailAsync(dto.Email);
             if (existingUser != null)
-                throw new Exception("Email already registered.");
+                throw new DuplicateException("Email already registered.");
 
             if (dto.Role != "JobSeeker" && dto.Role != "Employer")
-                throw new Exception("Invalid role. Must be JobSeeker or Employer.");
+                throw new ValidationException("Invalid role. Must be JobSeeker or Employer.");
 
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
@@ -104,12 +105,12 @@ namespace CareerCrafter.Services.Implementations
             var user = await _authRepository.GetUserByEmailAsync(dto.Email);
 
             if (user == null)
-                throw new Exception("Invalid email or password.");
+                throw new ValidationException("Invalid email or password.");
 
             var isValidPassword = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
 
             if (!isValidPassword)
-                throw new Exception("Invalid email or password.");
+                throw new ValidationException("Invalid email or password.");
 
             var token = GenerateJwtToken(user);
 
