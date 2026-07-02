@@ -15,11 +15,13 @@ namespace CareerCrafter.Services.Implementations
     {
         private readonly IJobListingRepository _jobRepo;
         private readonly IEmployerRepository _employerRepo;
+        private readonly IJobSeekerRepository _jobSeekerRepo;
 
-        public JobListingService(IJobListingRepository jobRepo, IEmployerRepository employerRepo)
+        public JobListingService(IJobListingRepository jobRepo, IEmployerRepository employerRepo, IJobSeekerRepository jobSeekerRepo)
         {
             _jobRepo = jobRepo;
             _employerRepo = employerRepo;
+            _jobSeekerRepo = jobSeekerRepo;
         }
 
         private static JobListingDto MapToDto(JobListing job)
@@ -196,6 +198,37 @@ namespace CareerCrafter.Services.Implementations
 
             await _jobRepo.UpdateAsync(job);
             await _jobRepo.SaveChangesAsync();
+        }
+
+        public async Task<List<JobListingDto>> GetRecommendedJobsAsync(int userId)
+        {
+            var profile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
+            if (profile == null) throw new NotFoundException("Job seeker profile not found.");
+
+            var jobs = await _jobRepo.GetAllActiveAsync();
+
+            // If no skills set, return 10 newest jobs as fallback
+            if (string.IsNullOrWhiteSpace(profile.Skills))
+                return jobs.OrderByDescending(j => j.PostedAt).Take(10).Select(j => MapToDto(j)).ToList();
+
+            var mySkills = profile.Skills
+                .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.ToLowerInvariant())
+                .ToList();
+
+            return jobs
+                .Select(j => new {
+                    Job = j,
+                    Score = mySkills.Count(skill =>
+                        !string.IsNullOrWhiteSpace(j.RequiredSkills) &&
+                        j.RequiredSkills.ToLowerInvariant().Contains(skill))
+                })
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ThenByDescending(x => x.Job.PostedAt)
+                .Take(10)
+                .Select(x => MapToDto(x.Job))
+                .ToList();
         }
     }
 }

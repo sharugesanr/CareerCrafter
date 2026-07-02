@@ -25,6 +25,8 @@ namespace CareerCrafter.API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
                 var result = await _authService.RegisterAsync(dto);
                 _logger.Info($"User {dto.Email} registered successfully as {dto.Role}");
                 return Ok(result);
@@ -41,6 +43,8 @@ namespace CareerCrafter.API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
                 var result = await _authService.LoginAsync(dto);
                 _logger.Info($"User {dto.Email} logged in successfully");
                 return Ok(result);

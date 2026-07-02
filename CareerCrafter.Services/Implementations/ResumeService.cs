@@ -19,14 +19,23 @@ namespace CareerCrafter.Services.Implementations
         private readonly IJobSeekerRepository _jobSeekerRepo;
         private readonly string _uploadFolder;
 
+        private readonly IEmployerRepository _employerRepo;
+        private readonly IApplicationRepository _applicationRepo;
+
+        private readonly string _webRootPath;
+
         private static readonly string[] AllowedExtensions = { ".pdf", ".doc", ".docx" };
         private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5MB
 
-        public ResumeService(IResumeRepository resumeRepo, IJobSeekerRepository jobSeekerRepo, IWebHostEnvironment environment)
+        public ResumeService(IResumeRepository resumeRepo, IJobSeekerRepository jobSeekerRepo, IWebHostEnvironment environment, IEmployerRepository employerReop, IApplicationRepository applicationRepo)
         {
             _resumeRepo = resumeRepo;
             _jobSeekerRepo = jobSeekerRepo;
-            _uploadFolder = Path.Combine(environment.WebRootPath, "resumes");
+            _webRootPath = environment.WebRootPath;
+            _uploadFolder = Path.Combine(_webRootPath, "resumes");
+            _employerRepo = employerReop;
+            _applicationRepo = applicationRepo;
+
 
             if (!Directory.Exists(_uploadFolder))
                 Directory.CreateDirectory(_uploadFolder);
@@ -131,6 +140,42 @@ namespace CareerCrafter.Services.Implementations
 
             await _resumeRepo.UpdateAsync(resume);
             await _resumeRepo.SaveChangesAsync();
+        }
+
+        private async Task<(byte[] FileBytes, string FileName)> ReadResumeFileAsync(Resume resume)
+        {
+            var fullPath = Path.Combine(_webRootPath, resume.FilePath);
+            if (!File.Exists(fullPath))
+                throw new NotFoundException("Resume file not found on server.");
+            var bytes = await File.ReadAllBytesAsync(fullPath);
+            return (bytes, resume.FileName);
+        }
+
+        public async Task<(byte[] FileBytes, string FileName)> DownloadResumeForJobSeekerAsync(int userId, int resumeId)
+        {
+            var profile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
+            if (profile == null) throw new NotFoundException("Job seeker profile not found.");
+
+            var resume = await _resumeRepo.GetByIdAsync(resumeId);
+            if (resume == null || resume.IsActive == false) throw new NotFoundException("Resume not found.");
+            if (resume.JobSeekerProfileId != profile.JobSeekerProfileId)
+                throw new UnauthorizedException("You are not authorized to download this resume.");
+
+            return await ReadResumeFileAsync(resume);
+        }
+
+        public async Task<(byte[] FileBytes, string FileName)> DownloadResumeForEmployerAsync(int userId, int resumeId)
+        {
+            var employer = await _employerRepo.GetByUserIdAsync(userId);
+            if (employer == null) throw new NotFoundException("Employer profile not found.");
+
+            var resume = await _resumeRepo.GetByIdAsync(resumeId);
+            if (resume == null) throw new NotFoundException("Resume not found.");
+
+            var hasAccess = await _applicationRepo.ExistsForResumeAndEmployerAsync(resumeId, employer.EmployerProfileId);
+            if (!hasAccess) throw new UnauthorizedException("You are not authorized to download this resume.");
+
+            return await ReadResumeFileAsync(resume);
         }
     }
 }

@@ -13,8 +13,11 @@ namespace CareerCrafter.Services.Interfaces
         Task<JobListingDto> UpdateJobAsync(int userId, int jobId, UpdateJobListingDto dto);
         Task SoftDeleteJobAsync(int userId, int jobId);
         Task<JobListingDto?> GetJobByIdAsync(int jobId);
+
+        Task<List<JobListingDto>> GetRecommendedJobsAsync(int userId);
         Task<PagedResultDto<JobListingDto>> SearchJobsAsync(JobSearchDto searchDto);
         Task<List<JobListingDto>> GetMyListingsAsync(int userId);
         Task ReactivateJobAsync(int userId, int jobId);
+
     }
 }

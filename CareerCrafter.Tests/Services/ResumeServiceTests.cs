@@ -22,6 +22,8 @@ namespace CareerCrafter.Tests.Services
         private Mock<IWebHostEnvironment> _envMock = null!;
         private ResumeService _service = null!;
         private string _testWebRootPath = null!;
+        private Mock<IEmployerRepository> _employerRepoMock = null!;
+        private Mock<IApplicationRepository> _applicationRepoMock = null!;
 
         [SetUp]
         public void SetUp()
@@ -30,11 +32,14 @@ namespace CareerCrafter.Tests.Services
             _jobSeekerRepoMock = new Mock<IJobSeekerRepository>();
             _envMock = new Mock<IWebHostEnvironment>();
 
+            _employerRepoMock = new Mock<IEmployerRepository>();
+            _applicationRepoMock = new Mock<IApplicationRepository>();
+
             // use a temp folder so tests don't touch the real wwwroot
             _testWebRootPath = Path.Combine(Path.GetTempPath(), "CareerCrafterTestWebRoot");
             _envMock.Setup(e => e.WebRootPath).Returns(_testWebRootPath);
 
-            _service = new ResumeService(_resumeRepoMock.Object, _jobSeekerRepoMock.Object, _envMock.Object);
+            _service = new ResumeService(_resumeRepoMock.Object, _jobSeekerRepoMock.Object, _envMock.Object, _employerRepoMock.Object,_applicationRepoMock.Object);
         }
 
         [TearDown]

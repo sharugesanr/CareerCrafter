@@ -56,6 +56,10 @@ namespace CareerCrafter.API
             builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
+            builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+
+
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecretKey"]!;
 
@@ -126,6 +130,7 @@ namespace CareerCrafter.API
 
 
             var app = builder.Build();
+            
 
             if (app.Environment.IsDevelopment())
             {

@@ -15,6 +15,7 @@ namespace CareerCrafter.Repositories.Interfaces
         Task<List<Application>> GetByJobIdAsync(int jobId);
         Task AddAsync(Application application);
         Task UpdateAsync(Application application);
+        Task<bool> ExistsForResumeAndEmployerAsync(int resumeId, int employerProfileId);
         Task SaveChangesAsync();
     }
 }

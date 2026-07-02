@@ -10,7 +10,7 @@ namespace CareerCrafter.API.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/resume")]
     [ApiController]
-    [Authorize(Roles = "JobSeeker")]
+    
     public class ResumeController : ControllerBase
     {
         private readonly IResumeService _service;
@@ -25,6 +25,7 @@ namespace CareerCrafter.API.Controllers
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         [HttpPost("upload")]
+        [Authorize(Roles = "JobSeeker")]
         public async Task<IActionResult> UploadResume(IFormFile file)
         {
             try
@@ -41,6 +42,7 @@ namespace CareerCrafter.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "JobSeeker")]
         public async Task<IActionResult> GetMyResumes()
         {
             try
@@ -56,6 +58,7 @@ namespace CareerCrafter.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "JobSeeker")]
         public async Task<IActionResult> GetResumeById(int id)
         {
             try
@@ -71,6 +74,7 @@ namespace CareerCrafter.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "JobSeeker")]
         public async Task<IActionResult> DeleteResume(int id)
         {
             try
@@ -82,6 +86,26 @@ namespace CareerCrafter.API.Controllers
             catch (Exception ex)
             {
                 _logger.Warn($"DeleteResume failed for user {GetUserId()} on resume {id} - {ex.Message}");
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("{id}/download")]
+        [Authorize]
+        public async Task<IActionResult> DownloadResume(int id)
+        {
+            try
+            {
+                var role = User.FindFirstValue(ClaimTypes.Role);
+                var (bytes, fileName) = role == "Employer"
+                    ? await _service.DownloadResumeForEmployerAsync(GetUserId(), id)
+                    : await _service.DownloadResumeForJobSeekerAsync(GetUserId(), id);
+
+                return File(bytes, "application/octet-stream", fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn($"DownloadResume failed for user {GetUserId()} on resume {id} - {ex.Message}");
                 return BadRequest(new { message = ex.Message });
             }
         }

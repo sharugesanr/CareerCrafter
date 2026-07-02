@@ -38,6 +38,21 @@ namespace CareerCrafter.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [HttpGet("recommended")]
+        [Authorize(Roles = "JobSeeker")]
+        public async Task<IActionResult> GetRecommendedJobs()
+        {
+            try
+            {
+                var result = await _service.GetRecommendedJobsAsync(GetUserId());
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn($"GetRecommendedJobs failed for user {GetUserId()} - {ex.Message}");
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
         [HttpGet("{id}")]
         [AllowAnonymous]

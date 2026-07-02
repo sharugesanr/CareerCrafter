@@ -14,5 +14,8 @@ namespace CareerCrafter.Services.Interfaces
         Task<List<ResumeDto>> GetMyResumesAsync(int userId);
         Task<ResumeDto> GetResumeByIdAsync(int userId, int resumeId);
         Task DeleteResumeAsync(int userId, int resumeId);
+
+        Task<(byte[] FileBytes, string FileName)> DownloadResumeForJobSeekerAsync(int userId, int resumeId);
+        Task<(byte[] FileBytes, string FileName)> DownloadResumeForEmployerAsync(int userId, int resumeId);
     }
 }

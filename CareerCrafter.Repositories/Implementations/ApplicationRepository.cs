@@ -68,6 +68,13 @@ namespace CareerCrafter.Repositories.Implementations
             _context.Applications.Update(application);
         }
 
+        public async Task<bool> ExistsForResumeAndEmployerAsync(int resumeId, int employerProfileId)
+        {
+            return await _context.Applications
+                .Include(a => a.Job)
+                .AnyAsync(a => a.ResumeId == resumeId && a.Job.EmployerProfileId == employerProfileId);
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

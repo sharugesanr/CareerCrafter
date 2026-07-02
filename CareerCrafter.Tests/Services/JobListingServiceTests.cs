@@ -19,13 +19,15 @@ namespace CareerCrafter.Tests.Services
         private Mock<IJobListingRepository> _jobRepoMock = null!;
         private Mock<IEmployerRepository> _employerRepoMock = null!;
         private JobListingService _service = null!;
+        private Mock<IJobSeekerRepository> _jobSeekerRepoMock = null!;
 
         [SetUp]
         public void SetUp()
         {
             _jobRepoMock = new Mock<IJobListingRepository>();
             _employerRepoMock = new Mock<IEmployerRepository>();
-            _service = new JobListingService(_jobRepoMock.Object, _employerRepoMock.Object);
+            _jobSeekerRepoMock = new Mock<IJobSeekerRepository>();
+            _service = new JobListingService(_jobRepoMock.Object,_employerRepoMock.Object,_jobSeekerRepoMock.Object);
         }
 
         private static EmployerProfile CreateEmployer(int profileId = 1, int userId = 1)
