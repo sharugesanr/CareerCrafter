@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+#Resumes ignore
+CareerCrafter.API/wwwroot/resumes/

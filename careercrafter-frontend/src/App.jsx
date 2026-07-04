@@ -8,6 +8,11 @@ import ForgotPassword from './pages/auth/ForgotPassword'
 import JobSearch from './pages/jobseeker/JobSearch'
 import JobDetail from './pages/jobseeker/JobDetail'
 
+import MyApplications from './pages/jobseeker/MyApplications'
+import Profile from './pages/jobseeker/Profile'
+import RecommendedJobs from './pages/jobseeker/RecommendedJobs'
+import Resumes from './pages/jobseeker/Resumes'
+
 export default function App() {
   return (
     <Routes>
@@ -24,10 +29,10 @@ export default function App() {
       <Route element={<ProtectedRoute role="JobSeeker"><MainLayout /></ProtectedRoute>}>
         <Route path="/jobseeker/jobs" element={<JobSearch />} />
         <Route path="/jobseeker/jobs/:id" element={<JobDetail />} />
-        <Route path="/jobseeker/recommended" element={<div>Recommended — coming soon</div>} />
-        <Route path="/jobseeker/applications" element={<div>My Applications — coming soon</div>} />
-        <Route path="/jobseeker/resumes" element={<div>Resumes — coming soon</div>} />
-        <Route path="/jobseeker/profile" element={<div>Profile — coming soon</div>} />
+        <Route path="/jobseeker/recommended" element={<RecommendedJobs/>} />
+        <Route path="/jobseeker/applications" element={<MyApplications />} />
+        <Route path="/jobseeker/resumes" element={<Resumes/>} />
+        <Route path="/jobseeker/profile" element={<Profile/>} />
       </Route>
 
       {/* Employer pages — add here later */}
