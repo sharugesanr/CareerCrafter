@@ -125,7 +125,7 @@ namespace CareerCrafter.Services.Implementations
         public async Task<JobListingDto?> GetJobByIdAsync(int jobId)
         {
             var job = await _jobRepo.GetByIdAsync(jobId);
-            if (job == null || job.IsActive == false)
+            if (job == null )
                 return null;
             return MapToDto(job);
         }

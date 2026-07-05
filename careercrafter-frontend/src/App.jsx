@@ -13,6 +13,12 @@ import Profile from './pages/jobseeker/Profile'
 import RecommendedJobs from './pages/jobseeker/RecommendedJobs'
 import Resumes from './pages/jobseeker/Resumes'
 
+import EmployerProfile from './pages/employer/EmployerProfile'
+import PostJob from './pages/employer/PostJob'
+import MyListings from './pages/employer/MyListings'
+import EditJob from './pages/employer/EditJob'
+import Applicants from './pages/employer/Applicants'
+
 export default function App() {
   return (
     <Routes>
@@ -37,9 +43,11 @@ export default function App() {
 
       {/* Employer pages — add here later */}
       <Route element={<ProtectedRoute role="Employer"><MainLayout /></ProtectedRoute>}>
-        <Route path="/employer/listings" element={<div>My Listings — coming soon</div>} />
-        <Route path="/employer/post-job" element={<div>Post Job — coming soon</div>} />
-        <Route path="/employer/profile" element={<div>Profile — coming soon</div>} />
+        <Route path="/employer/listings" element={<MyListings />} />
+        <Route path="/employer/post-job" element={<PostJob />} />
+        <Route path="/employer/edit-job/:id" element={<EditJob />} />
+        <Route path="/employer/applicants/:jobId" element={<Applicants />} />
+        <Route path="/employer/profile" element={<EmployerProfile />} />
       </Route>
 
       {/* Admin */}
