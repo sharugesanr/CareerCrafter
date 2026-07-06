@@ -18,5 +18,8 @@ namespace CareerCrafter.Repositories.Interfaces
         Task<int> CountActiveJobsAsync();
 
         Task<int> CountTotalApplicationsAsync();
+
+        Task<List<Resume>> GetSoftDeletedResumesAsync();
+        Task DeleteResumesAsync(List<Resume> resumes);
     }
 }

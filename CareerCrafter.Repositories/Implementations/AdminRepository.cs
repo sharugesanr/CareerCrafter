@@ -53,8 +53,21 @@ namespace CareerCrafter.Repositories.Implementations
                 .CountAsync();
         }
 
-        
+        public async Task<List<Resume>> GetSoftDeletedResumesAsync()
+        {
+            return await _context.Resumes
+                .Include(r=>r.Applications)
+                .Where(r => r.IsActive == false)
+                .ToListAsync();
+        }
 
-        
+        public async Task DeleteResumesAsync(List<Resume> resumes)
+        {
+            _context.Resumes.RemoveRange(resumes);
+            await _context.SaveChangesAsync();
+        }
+
+
+
     }
 }

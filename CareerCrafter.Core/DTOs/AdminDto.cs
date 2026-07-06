@@ -31,4 +31,13 @@ namespace CareerCrafter.Core.DTOs
         public int TotalActiveJobs { get; set; }
         public int TotalApplications { get; set; }
     }
+
+    public class AdminPurgeResultDto
+    {
+        public int Deleted { get; set; }
+
+        public int Skipped { get; set; }
+
+        public string Message { get; set; } = string.Empty;
+    }
 }

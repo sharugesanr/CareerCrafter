@@ -63,5 +63,23 @@ namespace CareerCrafter.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpDelete("purge-resumes")]
+        public async Task<IActionResult> PurgeDeletedResumes()
+        {
+            try
+            {
+                var result = await _adminService.PurgeDeletedResumesAsync();
+
+                _logger.Info($"Admin Purge Resumes - Deleted: {result.Deleted}, Skipped: {result.Skipped}");
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn($"PurgeDeletedResumes failed - {ex.Message}");
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

@@ -14,5 +14,7 @@ namespace CareerCrafter.Services.Interfaces
         Task<List<AdminJobDto>> GetAllJobsAsync();
 
         Task<PlatformStatsDto> GetPlatformStatsAsync();
+
+        Task<AdminPurgeResultDto> PurgeDeletedResumesAsync();
     }
 }

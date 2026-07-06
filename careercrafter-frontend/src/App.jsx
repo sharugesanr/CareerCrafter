@@ -19,6 +19,8 @@ import MyListings from './pages/employer/MyListings'
 import EditJob from './pages/employer/EditJob'
 import Applicants from './pages/employer/Applicants'
 
+import AdminDashboard from './pages/admin/AdminDashboard'
+
 export default function App() {
   return (
     <Routes>
@@ -52,7 +54,7 @@ export default function App() {
 
       {/* Admin */}
       <Route element={<ProtectedRoute role="Admin"><MainLayout /></ProtectedRoute>}>
-        <Route path="/admin/dashboard" element={<div>Admin Dashboard — coming soon</div>} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Route>
 
       <Route path="/unauthorized" element={<div className="text-center mt-5"><h3>Access Denied</h3></div>} />
