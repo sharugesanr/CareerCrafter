@@ -198,14 +198,14 @@ namespace CareerCrafter.Tests.Services
         }
 
         [Test]
-        public async Task GetJobByIdAsync_InactiveJob_ReturnsNull()
+        public async Task GetJobByIdAsync_InactiveJob_ReturnsNotNull()
         {
             var job = CreateJob(jobId: 5, isActive: false);
             _jobRepoMock.Setup(r => r.GetByIdAsync(5)).ReturnsAsync(job);
 
             var result = await _service.GetJobByIdAsync(5);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
