@@ -1,7 +1,12 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'master',
@@ -31,8 +36,9 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'CareerCrafter pipeline completed successfully!'
         }
+
         failure {
             echo 'Pipeline failed. Check the console output.'
         }
