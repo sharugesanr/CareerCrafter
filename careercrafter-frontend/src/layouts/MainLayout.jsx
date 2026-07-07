@@ -1,5 +1,6 @@
 import { Outlet, NavLink,Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import NotificationBell from '../components/NotificationBell'
 
 
 export default function MainLayout() {
@@ -56,7 +57,10 @@ export default function MainLayout() {
             )}
           </ul>
 
-          <ul className="navbar-nav ms-auto">
+          <ul className="navbar-nav ms-auto align-items-center">
+            <li className="nav-item me-3">
+              <NotificationBell />
+            </li>
             <li className="nav-item">
               <span className="nav-link text-white-50">Hi, {user?.fullName}</span>
             </li>
