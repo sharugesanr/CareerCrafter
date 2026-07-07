@@ -23,5 +23,7 @@ namespace CareerCrafter.Core.Models
         public virtual JobSeekerProfile? JobSeekerProfile { get; set; }
 
         public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+        public virtual ICollection<PasswordResetOtp> PasswordResetOtps { get; set; } = new List<PasswordResetOtp>();
     }
 }

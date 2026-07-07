@@ -19,6 +19,8 @@ namespace CareerCrafter.Data
         public DbSet<Application> Applications { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
+        public DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // User
@@ -152,6 +154,27 @@ namespace CareerCrafter.Data
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
                 entity.HasOne(e => e.User)
                       .WithMany(u => u.Notifications)
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // PasswordResetOtp
+            modelBuilder.Entity<PasswordResetOtp>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.OtpCode)
+                      .IsRequired()
+                      .HasMaxLength(6);
+
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("GETDATE()");
+
+                entity.Property(e => e.IsUsed)
+                      .HasDefaultValue(false);
+
+                entity.HasOne(e => e.User)
+                      .WithMany(u => u.PasswordResetOtps)
                       .HasForeignKey(e => e.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
