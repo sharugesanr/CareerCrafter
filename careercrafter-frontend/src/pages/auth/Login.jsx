@@ -1,3 +1,4 @@
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
@@ -11,6 +12,7 @@ export default function Login() {
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const validate = () => {
     const errs = {}
@@ -65,15 +67,25 @@ export default function Login() {
         </div>
         <div className="mb-3">
           <label className="form-label">Password</label>
-          <input
-            type="password"
-            name="password"
-            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-            placeholder="Enter your password"
-            value={form.password}
-            onChange={handleChange}
-          />
-          {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+          <div className="input-group">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+              placeholder="Enter your password"
+              value={form.password}
+              onChange={handleChange}
+              style={{ borderRight: 'none' }}
+            />
+            <span 
+              className={`input-group-text bg-white border-start-0 ${errors.password ? 'border-danger' : ''}`}
+              style={{ cursor: 'pointer', color: '#6c757d' }}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+          {errors.password && <div className="text-danger small mt-1">{errors.password}</div>}
         </div>
         <button type="submit" className="btn btn-primary w-100" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}

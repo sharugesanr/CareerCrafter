@@ -41,6 +41,41 @@ namespace CareerCrafter.Repositories.Implementations
             _context.JobSeekerProfiles.Add(profile);
         }
 
+        public async Task AddPasswordResetOtpAsync(PasswordResetOtp otp)
+        {
+            await _context.PasswordResetOtps.AddAsync(otp);
+        }
+
+        public async Task<PasswordResetOtp?> GetLatestOtpAsync(int userId, string otpCode)
+        {
+            return await _context.PasswordResetOtps
+                .Where(o =>
+                    o.UserId == userId &&
+                    o.OtpCode == otpCode &&
+                    !o.IsUsed &&
+                    o.ExpiresAt > DateTime.Now)
+                .OrderByDescending(o => o.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            _context.Users.Update(user);
+            await Task.CompletedTask;
+        }
+
+        public async Task InvalidatePreviousOtpsAsync(int userId)
+        {
+            var otps = await _context.PasswordResetOtps
+                .Where(o => o.UserId == userId && !o.IsUsed)
+                .ToListAsync();
+
+            foreach (var otp in otps)
+            {
+                otp.IsUsed = true;
+            }
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

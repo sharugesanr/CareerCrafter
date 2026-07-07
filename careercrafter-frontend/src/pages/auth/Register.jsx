@@ -1,3 +1,4 @@
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../../services/api'
@@ -13,6 +14,8 @@ export default function Register() {
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const getPasswordStrength = (password) => {
     if (!password) return { label: '', color: '' }
@@ -97,28 +100,54 @@ export default function Register() {
         </div>
         <div className="mb-3">
           <label className="form-label">Password</label>
-          <input
-            type="password" name="password"
-            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-            placeholder="Enter your password"
-            value={form.password} onChange={handleChange}
-          />
+          <div className="input-group">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+              placeholder="Enter your password"
+              value={form.password}
+              onChange={handleChange}
+              style={{ borderRight: 'none' }}
+            />
+            <span 
+              className={`input-group-text bg-white border-start-0 ${errors.password ? 'border-danger' : ''}`}
+              style={{ cursor: 'pointer', color: '#6c757d' }}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
           {form.password && (
-            <small className={`${strength.color} fw-semibold`}>
-              Password strength: {strength.label}
-            </small>
+            <div className="mt-1">
+              <small className={`${strength.color} fw-semibold`}>
+                Password strength: {strength.label}
+              </small>
+            </div>
           )}
-          {errors.password && <div className="invalid-feedback d-block">{errors.password}</div>}
+          {errors.password && <div className="text-danger small mt-1">{errors.password}</div>}
         </div>
         <div className="mb-3">
           <label className="form-label">Confirm Password</label>
-          <input
-            type="password" name="confirmPassword"
-            className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
-            placeholder="Re-enter your password"
-            value={form.confirmPassword} onChange={handleChange}
-          />
-          {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
+          <div className="input-group">
+            <input
+              type={showConfirmPassword ? 'text' : 'password'}
+              name="confirmPassword"
+              className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+              placeholder="Re-enter your password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              style={{ borderRight: 'none' }}
+            />
+            <span 
+              className={`input-group-text bg-white border-start-0 ${errors.confirmPassword ? 'border-danger' : ''}`}
+              style={{ cursor: 'pointer', color: '#6c757d' }}
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+          {errors.confirmPassword && <div className="text-danger small mt-1">{errors.confirmPassword}</div>}
         </div>
         <div className="mb-3">
           <label className="form-label">Register as</label>

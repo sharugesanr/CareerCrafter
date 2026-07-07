@@ -55,5 +55,61 @@ namespace CareerCrafter.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                await _authService.ForgotPasswordAsync(dto);
+
+                _logger.Info($"Password reset OTP sent to {dto.Email}");
+
+                return Ok(new
+                {
+                    message = "OTP sent successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn($"Forgot password failed for {dto.Email} - {ex.Message}");
+
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                await _authService.ResetPasswordAsync(dto);
+
+                _logger.Info($"Password reset successful for {dto.Email}");
+
+                return Ok(new
+                {
+                    message = "Password reset successful."
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn($"Password reset failed for {dto.Email} - {ex.Message}");
+
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

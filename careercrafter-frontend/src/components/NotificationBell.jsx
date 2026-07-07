@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { FaBell } from 'react-icons/fa'
 import api from '../services/api'
 
 export default function NotificationBell() {
@@ -43,7 +44,8 @@ export default function NotificationBell() {
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        🔔
+        {/* 🔔 */}
+        <FaBell size={18} className="mb-1" /> 
         {unreadCount > 0 && (
           <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
             {unreadCount}

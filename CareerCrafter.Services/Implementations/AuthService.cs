@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -124,6 +125,68 @@ namespace CareerCrafter.Services.Implementations
             };
         }
 
+        public async Task ForgotPasswordAsync(ForgotPasswordDto dto)
+        {
+            var user = await _authRepository.GetUserByEmailAsync(dto.Email);
+
+            if (user == null)
+                throw new ValidationException("No account found with this email.");
+
+            await _authRepository.InvalidatePreviousOtpsAsync(user.UserId);
+
+            var otp = GenerateOtp();
+
+            var passwordResetOtp = new PasswordResetOtp
+            {
+                UserId = user.UserId,
+                OtpCode = otp,
+                CreatedAt = DateTime.Now,
+                ExpiresAt = DateTime.Now.AddMinutes(10),
+                IsUsed = false
+            };
+
+            await _authRepository.AddPasswordResetOtpAsync(passwordResetOtp);
+            await _authRepository.SaveChangesAsync();
+
+            await _emailService.SendEmailAsync(
+                user.Email,
+                "CareerCrafter Password Reset OTP",
+        $@"Hello {user.FullName},
+
+Your OTP for resetting your CareerCrafter password is:
+
+{otp}
+
+This OTP is valid for 10 minutes.
+
+If you did not request a password reset, please ignore this email.
+
+Regards,
+CareerCrafter Team");
+        }
+
+
+        public async Task ResetPasswordAsync(ResetPasswordDto dto)
+        {
+            var user = await _authRepository.GetUserByEmailAsync(dto.Email);
+
+            if (user == null)
+                throw new ValidationException("No account found with this email.");
+
+            var otpRecord = await _authRepository.GetLatestOtpAsync(user.UserId, dto.OtpCode);
+
+            if (otpRecord == null)
+                throw new ValidationException("Invalid or expired OTP.");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+
+            otpRecord.IsUsed = true;
+
+            await _authRepository.UpdateUserAsync(user);
+
+            await _authRepository.SaveChangesAsync();
+        }
+
         private string GenerateJwtToken(User user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
@@ -152,6 +215,13 @@ namespace CareerCrafter.Services.Implementations
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private string GenerateOtp()
+        {
+            return RandomNumberGenerator
+                .GetInt32(100000, 1000000)
+                .ToString();
         }
     }
 }

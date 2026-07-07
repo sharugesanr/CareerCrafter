@@ -13,6 +13,12 @@ namespace CareerCrafter.Repositories.Interfaces
         Task<User> AddUserAsync(User user);
         Task AddEmployerProfileAsync(EmployerProfile profile);
         Task AddJobSeekerProfileAsync(JobSeekerProfile profile);
+
+        Task AddPasswordResetOtpAsync(PasswordResetOtp otp);
+        Task<PasswordResetOtp?> GetLatestOtpAsync(int userId, string otpCode);
+        Task UpdateUserAsync(User user);
+        Task InvalidatePreviousOtpsAsync(int userId);
+
         Task SaveChangesAsync();
     }
 }

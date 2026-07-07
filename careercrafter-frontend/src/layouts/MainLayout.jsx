@@ -1,6 +1,7 @@
 import { Outlet, NavLink,Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import NotificationBell from '../components/NotificationBell'
+import logo from '../assets/logo.svg'
 
 
 export default function MainLayout() {
@@ -15,7 +16,10 @@ export default function MainLayout() {
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary px-4">
-        <span className="navbar-brand fw-bold fs-3">CareerCrafter</span>
+        <span className="navbar-brand fw-bold d-flex align-items-center gap-2">
+          <img src={logo} alt="CareerCrafter Logo" width="32" height="32" />
+          CareerCrafter
+        </span>
         <div className="collapse navbar-collapse">
           <ul className="navbar-nav me-auto">
             {role === 'JobSeeker' && (
