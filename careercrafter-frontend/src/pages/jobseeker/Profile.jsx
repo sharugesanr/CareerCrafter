@@ -49,7 +49,23 @@ export default function Profile() {
       setEditing(false)
       setMessage({ type: 'success', text: 'Profile updated successfully.' })
     } catch (err) {
-      setMessage({ type: 'danger', text: err.response?.data?.message || 'Update failed.' })
+      // 1. Fallback default message
+    let errorText = 'Update failed.' 
+
+    // 2. Check if the server returned an explicit validation errors object
+    const backendErrors = err.response?.data?.errors 
+
+    if (backendErrors) {
+      // Extract all nested validation error messages and join them together
+      errorText = Object.values(backendErrors)
+        .flatMap(errorArray => errorArray)
+        .join(' ')
+    } else if (err.response?.data?.message) {
+      // 3. Fallback check for alternative standard error fields
+      errorText = err.response.data.message
+    }
+
+    setMessage({ type: 'danger', text: errorText })
     }
   }
 
