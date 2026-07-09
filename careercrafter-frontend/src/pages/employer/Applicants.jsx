@@ -33,20 +33,20 @@ export default function Applicants() {
     }
   }
 
-  const handleDownloadResume = async (resumeId, applicantName) => {
-    try {
-      const res = await api.get(`/resume/${resumeId}/download`, { responseType: 'blob' })
-      const url = window.URL.createObjectURL(new Blob([res.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `${applicantName}_resume`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-    } catch (err) {
-      setMessage({ type: 'danger', text: 'Failed to download resume.' })
-    }
+  const handleDownloadResume = async (resumeId, fileName) => {
+  try {
+    const res = await api.get(`/resume/${resumeId}/download`, { responseType: 'blob' })
+    const url = window.URL.createObjectURL(new Blob([res.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', fileName)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+  } catch (err) {
+    setMessage({ type: 'danger', text: 'Failed to download resume.' })
   }
+}
 
   if (loading) return <div className="text-center py-5"><div className="spinner-border text-primary" /></div>
 
@@ -76,10 +76,18 @@ export default function Applicants() {
                   </p>
                 </div>
                 <div className="d-flex flex-column gap-2 align-items-end">
-                  <button className="btn btn-outline-secondary btn-sm"
-                    onClick={() => handleDownloadResume(app.resumeId, app.jobSeekerName)}>
-                    Download Resume
-                  </button>
+                  {app.status !== 'Withdrawn' && (
+                    <>
+                      <button className="btn btn-outline-primary btn-sm"
+                        onClick={() => navigate(`/employer/candidate-profile/${app.applicationId}`)}>
+                        View Profile
+                      </button>
+                      <button className="btn btn-outline-secondary btn-sm"
+                        onClick={() => handleDownloadResume(app.resumeId, app.resumeFileName)}>
+                        Download Resume
+                      </button>
+                    </>
+                  )}
                   {app.status !== 'Withdrawn' && app.status !== 'Rejected' && (
                     <select className="form-select form-select-sm"
                       value={app.status}

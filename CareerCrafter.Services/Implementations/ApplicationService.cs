@@ -60,7 +60,9 @@ namespace CareerCrafter.Services.Implementations
                 Status = application.Status,
                 AppliedAt = application.AppliedAt,
                 CoverNote = application.CoverNote,
-                ResumeId = application.ResumeId
+                ResumeId = application.ResumeId,
+                ResumeFileName = application.Resume.FileName
+
             };
         }
 
@@ -69,6 +71,14 @@ namespace CareerCrafter.Services.Implementations
             var jobSeekerProfile = await _jobSeekerRepo.GetProfileByUserIdAsync(userId);
             if (jobSeekerProfile == null)
                 throw new NotFoundException("Job seeker profile not found.");
+
+            if (string.IsNullOrWhiteSpace(jobSeekerProfile.PhoneNumber) ||
+                    string.IsNullOrWhiteSpace(jobSeekerProfile.Location) ||
+                    string.IsNullOrWhiteSpace(jobSeekerProfile.Skills) ||
+                    jobSeekerProfile.Educations.Count == 0)
+            {
+                throw new ValidationException("Please complete your profile (phone number, location, skills) and add at least one education record before applying to jobs.");
+            }
 
             var job = await _jobListingRepo.GetByIdAsync(dto.JobId);
             if (job == null || job.IsActive == false)
@@ -164,7 +174,7 @@ namespace CareerCrafter.Services.Implementations
             if (job.EmployerProfileId != employer.EmployerProfileId)
                 throw new UnauthorizedException("You are not authorized to view applications for this job.");
 
-            
+
 
             var applications = await _applicationRepo.GetByJobIdAsync(jobId);
             return applications.Select(a => MapToApplicantDto(a)).ToList();
@@ -217,6 +227,49 @@ namespace CareerCrafter.Services.Implementations
             }
 
             return MapToApplicantDto(application);
+        }
+
+        public async Task<CandidateProfileDto> GetCandidateProfileAsync(int userId, int applicationId)
+        {
+            var employer = await _employerRepo.GetByUserIdAsync(userId);
+            if (employer == null)
+                throw new NotFoundException("Employer profile not found.");
+
+            var application = await _applicationRepo.GetByIdAsync(applicationId);
+            if (application == null)
+                throw new NotFoundException("Application not found.");
+
+            if (application.Job.EmployerProfileId != employer.EmployerProfileId)
+                throw new UnauthorizedException("You are not authorized to view this candidate's profile.");
+
+            var jobSeekerUserId = application.JobSeekerProfile.UserId;
+            var profile = await _jobSeekerRepo.GetProfileByUserIdAsync(jobSeekerUserId);
+
+            return new CandidateProfileDto
+            {
+                FullName = profile!.User.FullName,
+                Email = profile.User.Email,
+                PhoneNumber = profile.PhoneNumber,
+                Location = profile.Location,
+                Summary = profile.Summary,
+                Skills = profile.Skills,
+                Educations = profile.Educations.Select(e => new CandidateEducationDto
+                {
+                    Degree = e.Degree,
+                    Institution = e.Institution,
+                    YearOfPassing = e.YearOfPassing
+                }).ToList(),
+                Experiences = profile.Experiences.Select(e => new CandidateExperienceDto
+                {
+                    JobTitle = e.JobTitle,
+                    Company = e.Company,
+                    Duration = e.Duration,
+                    Description = e.Description
+                }).ToList(),
+                ResumeId = application.ResumeId,
+                ResumeFileName = application.Resume.FileName,
+                ResumeUploadedAt = application.Resume.UploadedAt
+            };
         }
     }
 }

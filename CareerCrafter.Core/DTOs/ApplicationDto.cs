@@ -46,5 +46,6 @@ namespace CareerCrafter.Core.DTOs
         public DateTime? AppliedAt { get; set; }
         public string? CoverNote { get; set; }
         public int ResumeId { get; set; }
+        public string ResumeFileName { get; set; } = string.Empty;
     }
 }

@@ -128,5 +128,21 @@ namespace CareerCrafter.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("{id}/candidate-profile")]
+        [Authorize(Roles = "Employer")]
+        public async Task<IActionResult> GetCandidateProfile(int id)
+        {
+            try
+            {
+                var result = await _service.GetCandidateProfileAsync(GetUserId(), id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn($"GetCandidateProfile failed for user {GetUserId()} on application {id} - {ex.Message}");
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

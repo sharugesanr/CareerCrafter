@@ -21,6 +21,11 @@ import Applicants from './pages/employer/Applicants'
 
 import AdminDashboard from './pages/admin/AdminDashboard'
 
+import CandidateProfile from './pages/employer/CandidateProfile'
+
+import NotFound from './pages/NotFound'
+import Unauthorized from './pages/Unauthorized'
+
 export default function App() {
   return (
     <Routes>
@@ -50,6 +55,7 @@ export default function App() {
         <Route path="/employer/edit-job/:id" element={<EditJob />} />
         <Route path="/employer/applicants/:jobId" element={<Applicants />} />
         <Route path="/employer/profile" element={<EmployerProfile />} />
+        <Route path="/employer/candidate-profile/:applicationId" element={<CandidateProfile />} />
       </Route>
 
       {/* Admin */}
@@ -57,7 +63,8 @@ export default function App() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Route>
 
-      <Route path="/unauthorized" element={<div className="text-center mt-5"><h3>Access Denied</h3></div>} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }

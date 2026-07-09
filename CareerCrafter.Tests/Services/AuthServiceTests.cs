@@ -216,5 +216,113 @@ namespace CareerCrafter.Tests.Services
             var ex = Assert.ThrowsAsync<ValidationException>(async () => await _authService.LoginAsync(dto));
             Assert.That(ex!.Message, Is.EqualTo("Invalid email or password."));
         }
+
+        [Test]
+        public async Task ForgotPasswordAsync_ValidEmail_SendsOtpSuccessfully()
+        {
+            var dto = new ForgotPasswordDto
+            {
+                Email = "seeker@test.com"
+            };
+
+            var user = new User
+            {
+                UserId = 1,
+                FullName = "Test Seeker",
+                Email = dto.Email
+            };
+
+            _authRepoMock
+                .Setup(r => r.GetUserByEmailAsync(dto.Email))
+                .ReturnsAsync(user);
+
+            _authRepoMock
+                .Setup(r => r.InvalidatePreviousOtpsAsync(user.UserId))
+                .Returns(Task.CompletedTask);
+
+            _authRepoMock
+                .Setup(r => r.AddPasswordResetOtpAsync(It.IsAny<PasswordResetOtp>()))
+                .Returns(Task.CompletedTask);
+
+            _authRepoMock
+                .Setup(r => r.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
+            await _authService.ForgotPasswordAsync(dto);
+
+            _authRepoMock.Verify(r => r.InvalidatePreviousOtpsAsync(user.UserId), Times.Once);
+
+            _authRepoMock.Verify(r => r.AddPasswordResetOtpAsync(It.IsAny<PasswordResetOtp>()), Times.Once);
+
+            _authRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+
+            _emailServiceMock.Verify(e =>
+                e.SendEmailAsync(
+                    dto.Email,
+                    It.IsAny<string>(),
+                    It.IsAny<string>()),
+                Times.Once);
+        }
+
+        [Test]
+        public void ForgotPasswordAsync_UserNotFound_ThrowsValidationException()
+        {
+            var dto = new ForgotPasswordDto
+            {
+                Email = "unknown@test.com"
+            };
+
+            _authRepoMock
+                .Setup(r => r.GetUserByEmailAsync(dto.Email))
+                .ReturnsAsync((User?)null);
+
+            var ex = Assert.ThrowsAsync<ValidationException>(
+                async () => await _authService.ForgotPasswordAsync(dto));
+
+            Assert.That(ex!.Message,
+                Is.EqualTo("No account found with this email."));
+        }
+
+        [Test]
+        public async Task ForgotPasswordAsync_InvalidatesPreviousOtps_BeforeCreatingNewOtp()
+        {
+            var dto = new ForgotPasswordDto
+            {
+                Email = "seeker@test.com"
+            };
+
+            var user = new User
+            {
+                UserId = 1,
+                Email = dto.Email,
+                FullName = "Test Seeker"
+            };
+
+            var sequence = new MockSequence();
+
+            _authRepoMock
+                .InSequence(sequence)
+                .Setup(r => r.InvalidatePreviousOtpsAsync(user.UserId))
+                .Returns(Task.CompletedTask);
+
+            _authRepoMock
+                .InSequence(sequence)
+                .Setup(r => r.AddPasswordResetOtpAsync(It.IsAny<PasswordResetOtp>()))
+                .Returns(Task.CompletedTask);
+
+            _authRepoMock
+                .Setup(r => r.GetUserByEmailAsync(dto.Email))
+                .ReturnsAsync(user);
+
+            _authRepoMock
+                .Setup(r => r.SaveChangesAsync())
+                .Returns(Task.CompletedTask);
+
+            await _authService.ForgotPasswordAsync(dto);
+
+            _authRepoMock.Verify(r => r.InvalidatePreviousOtpsAsync(user.UserId), Times.Once);
+
+            _authRepoMock.Verify(r => r.AddPasswordResetOtpAsync(It.IsAny<PasswordResetOtp>()), Times.Once);
+        }
     }
 }

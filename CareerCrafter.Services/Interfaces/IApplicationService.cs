@@ -15,5 +15,6 @@ namespace CareerCrafter.Services.Interfaces
         Task WithdrawApplicationAsync(int userId, int applicationId);
         Task<List<ApplicantDto>> GetApplicantsByJobAsync(int userId, int jobId);
         Task<ApplicantDto> UpdateApplicationStatusAsync(int userId, int applicationId, UpdateApplicationStatusDto dto);
+        Task<CandidateProfileDto> GetCandidateProfileAsync(int userId, int applicationId);
     }
 }
